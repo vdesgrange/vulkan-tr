@@ -2,8 +2,9 @@ cmake_minimum_required(VERSION 3.21)
 project(vulkan)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_executable(vulkan src/main.cpp)
+add_executable(vulkan src/main.cpp src/utility_shader.cpp include/utility_shader.h)
 
 include_directories(/usr/local/include/)
 
