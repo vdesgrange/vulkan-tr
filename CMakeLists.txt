@@ -4,9 +4,9 @@ project(vulkan)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_executable(vulkan src/main.cpp src/utility_shader.cpp include/utility_shader.h)
+add_executable(vulkan src/main.cpp src/utility_shader.cpp include/utility_shader.h include/stb_image.h)
 
-include_directories(/usr/local/include/)
+include_directories(/usr/local/include/ ./include/)
 
 find_library(LIBVULKAN13 libvulkan.1.3.204.dylib ~/VulkanSDK/1.3.204.1/macOS/lib/)
 find_library(LIBVULKAN1 libvulkan.1.dylib ~/VulkanSDK/1.3.204.1/macOS/lib/)
