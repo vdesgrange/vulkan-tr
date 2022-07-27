@@ -4,7 +4,16 @@ project(vulkan)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_executable(vulkan src/main.cpp src/utility_shader.cpp include/stb_image.h include/utility_shader.h include/tiny_obj_loader.h)
+add_executable(vulkan
+        src/main.cpp
+        src/utility_shader.cpp
+        include/stb_image.h
+        include/utility_shader.h
+        # include/tiny_obj_loader.h
+        include/vertex.h
+        include/model_loader.h
+        src/model_loader.cpp
+        )
 
 include_directories(/usr/local/include/ ./include/)
 
