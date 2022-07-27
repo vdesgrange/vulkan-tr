@@ -796,7 +796,7 @@ private:
                      vertexBuffer,
                      vertexBufferMemory);
 
-        copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
+        copyBuffer(device, commandPool, graphicsQueue, stagingBuffer, vertexBuffer, bufferSize);
 
         vkDestroyBuffer(device, stagingBuffer, nullptr);
         vkFreeMemory(device, stagingBufferMemory, nullptr);
@@ -828,7 +828,7 @@ private:
                      indexBuffer,
                      indexBufferMemory);
 
-        copyBuffer(stagingBuffer, indexBuffer, bufferSize);
+        copyBuffer(device, commandPool, graphicsQueue, stagingBuffer, indexBuffer, bufferSize);
 
         vkDestroyBuffer(device, stagingBuffer, nullptr);
         vkFreeMemory(device, stagingBufferMemory, nullptr);
@@ -978,61 +978,59 @@ private:
         return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
     }
 
+//    void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
+//        VkCommandBufferAllocateInfo allocInfo{};
+//        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+//        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+//        allocInfo.commandPool = commandPool;
+//        allocInfo.commandBufferCount = 1;
+//
+//        VkCommandBuffer commandBuffer = beginSingleTimeCommand();
+//
+//        VkBufferCopy copyRegion{};
+//        copyRegion.srcOffset = 0;
+//        copyRegion.dstOffset = 0;
+//        copyRegion.size = size;
+//        vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+//
+//        endSingleTimeCommand(commandBuffer);
+//    }
 
+//    VkCommandBuffer beginSingleTimeCommand() {
+//        VkCommandBufferAllocateInfo allocInfo{};
+//        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+//        allocInfo.commandBufferCount = 1;
+//        allocInfo.commandPool = commandPool;
+//        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+//
+//        VkCommandBuffer commandBuffer;
+//        vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
+//
+//        VkCommandBufferBeginInfo beginInfo{};
+//        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+//        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+//
+//        vkBeginCommandBuffer(commandBuffer, &beginInfo);
+//
+//        return commandBuffer;
+//    }
 
-    void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
-        VkCommandBufferAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandPool = commandPool;
-        allocInfo.commandBufferCount = 1;
-
-        VkCommandBuffer commandBuffer = beginSingleTimeCommand();
-
-        VkBufferCopy copyRegion{};
-        copyRegion.srcOffset = 0;
-        copyRegion.dstOffset = 0;
-        copyRegion.size = size;
-        vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
-
-        endSingleTimeCommand(commandBuffer);
-    }
-
-    VkCommandBuffer beginSingleTimeCommand() {
-        VkCommandBufferAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.commandBufferCount = 1;
-        allocInfo.commandPool = commandPool;
-        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-
-        VkCommandBuffer commandBuffer;
-        vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
-
-        VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-        vkBeginCommandBuffer(commandBuffer, &beginInfo);
-
-        return commandBuffer;
-    }
-
-    void endSingleTimeCommand(VkCommandBuffer commandBuffer) {
-        vkEndCommandBuffer(commandBuffer);
-
-        VkSubmitInfo submitInfo{};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &commandBuffer;
-
-        vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-        vkQueueWaitIdle(graphicsQueue);
-
-        vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
-    }
+//    void endSingleTimeCommand(VkCommandBuffer commandBuffer) {
+//        vkEndCommandBuffer(commandBuffer);
+//
+//        VkSubmitInfo submitInfo{};
+//        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+//        submitInfo.commandBufferCount = 1;
+//        submitInfo.pCommandBuffers = &commandBuffer;
+//
+//        vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+//        vkQueueWaitIdle(graphicsQueue);
+//
+//        vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+//    }
 
     void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) {
-        VkCommandBuffer commandBuffer = beginSingleTimeCommand();
+        VkCommandBuffer commandBuffer = beginSingleTimeCommand(device, commandPool);
 
         VkImageMemoryBarrier barrier{};
         barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -1093,11 +1091,11 @@ private:
                 1, &barrier
         );
 
-        endSingleTimeCommand(commandBuffer);
+        endSingleTimeCommand(commandBuffer, commandPool, device, graphicsQueue);
     }
 
     void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) {
-        VkCommandBuffer commandBuffer = beginSingleTimeCommand();
+        VkCommandBuffer commandBuffer = beginSingleTimeCommand(device, commandPool);
 
         VkBufferImageCopy region{};
         region.bufferOffset = 0;
@@ -1115,7 +1113,7 @@ private:
                                image,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                1,&region);
 
-        endSingleTimeCommand(commandBuffer);
+        endSingleTimeCommand(commandBuffer, commandPool, device, graphicsQueue);
     }
 
     void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
