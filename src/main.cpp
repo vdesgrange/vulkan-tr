@@ -3,7 +3,7 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #define GLM_ENABLE_EXPERIMENTAL
-// #define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
 
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -21,14 +21,13 @@
 #include <set>
 #include <array>
 #include <chrono>
-#include <unordered_map>
 
 #include "../include/vertex.h"
+#include "../include/buffers.h"
 #include "../include/model_loader.h"
 
 #include "../include/utility_shader.h"
 #include "../include/stb_image.h"
-// #include "../include/tiny_obj_loader.h"
 
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
@@ -36,8 +35,6 @@ const int MAX_FRAMES_IN_FLIGHT = 2;
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 
-//const std::string MODEL_PATH = "src/models/viking_room.obj";
-//const std::string TEXTURE_PATH = "src/textures/viking_room.png";
 
 struct UniformBufferObject {
     alignas(16) glm::mat4 model;
@@ -45,15 +42,6 @@ struct UniformBufferObject {
     alignas(16) glm::mat4 proj;
 };
 
-//namespace std {
-//    template<> struct hash<Vertex> {
-//        size_t operator()(Vertex const& vertex) const {
-//            return ((hash<glm::vec3>()(vertex.pos) ^
-//                     (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^
-//                   (hash<glm::vec2>()(vertex.texCoord) << 1);
-//        }
-//    };
-//}
 
 const std::vector<const char*> validationLayers = {
         "VK_LAYER_KHRONOS_validation"
@@ -63,27 +51,9 @@ const std::vector<const char*> deviceExtensions = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
-//const std::vector<Vertex> vertices = {
-//        {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-//        {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-//        {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-//        {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
-//
-//        {{-0.5f, -0.5f, 0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-//        {{0.5f, -0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-//        {{0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-//        {{-0.5f, 0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
-//};
-//
-//const std::vector<uint16_t> indices = {
-//        0, 1, 2, 2, 3, 0,
-//        4, 5, 6, 6, 7, 4
-//};
-
 std::vector<Vertex> vertices;
 std::vector<uint32_t> indices;
-//VkBuffer vertexBuffer;
-//VkDeviceMemory vertexBufferMemory;
+
 
 #ifdef NDEBUG
     const bool enableValidationLayers = false;
@@ -209,7 +179,6 @@ private:
         createTextureImage();
         createTextureImageView();
         createTextureSampler();
-        // loadModel();
         loadModel(vertices, indices);
         createVertexBuffer();
         createIndexBuffer();
@@ -743,7 +712,13 @@ private:
 
         VkBuffer stagingBuffer;
         VkDeviceMemory stagingBufferMemory;
-        createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+        createBuffer(device,
+                     imageSize,
+                     physicalDevice,
+                     VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                     stagingBuffer,
+                     stagingBufferMemory);
 
         void* data;
         vkMapMemory(device, stagingBufferMemory, 0, imageSize, 0, &data);
@@ -795,52 +770,14 @@ private:
         }
     }
 
-//    void loadModel() {
-//        tinyobj::attrib_t attrib;
-//        std::vector<tinyobj::shape_t> shapes;
-//        std::vector<tinyobj::material_t> materials;
-//        std::string warn, err;
-//
-//        if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, MODEL_PATH.c_str())) {
-//            throw std::runtime_error(warn + err);
-//        }
-//
-//        std::unordered_map<Vertex, uint32_t> uniqueVertices{};
-//
-//        for (const auto& shape : shapes) {
-//            for (const auto& index : shape.mesh.indices) {
-//                Vertex vertex{};
-//
-//                vertex.pos = {
-//                        attrib.vertices[3 * index.vertex_index + 0],
-//                        attrib.vertices[3 * index.vertex_index + 1],
-//                        attrib.vertices[3 * index.vertex_index + 2]
-//                };
-//
-//                vertex.texCoord = {
-//                        attrib.texcoords[2 * index.texcoord_index + 0],
-//                        1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
-//                };
-//
-//                vertex.color = {1.0f, 1.0f, 1.0f};
-//
-//                if (uniqueVertices.count(vertex) == 0) {
-//                    uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-//                    vertices.push_back(vertex);
-//                }
-//
-//                indices.push_back(uniqueVertices[vertex]);
-//            }
-//        }
-//
-//    }
-
     void createVertexBuffer() {
         VkDeviceSize bufferSize =  sizeof(vertices[0]) * vertices.size();
 
         VkBuffer stagingBuffer;
         VkDeviceMemory stagingBufferMemory;
-        createBuffer(bufferSize,
+        createBuffer(device,
+                     bufferSize,
+                     physicalDevice,
                      VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                      stagingBuffer,
@@ -851,7 +788,9 @@ private:
         memcpy(data, vertices.data(), (size_t) bufferSize);
         vkUnmapMemory(device, stagingBufferMemory);
 
-        createBuffer(bufferSize,
+        createBuffer(device,
+                    bufferSize,
+                     physicalDevice,
                      VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                      vertexBuffer,
@@ -868,7 +807,9 @@ private:
 
         VkBuffer stagingBuffer;
         VkDeviceMemory stagingBufferMemory;
-        createBuffer(bufferSize,
+        createBuffer(device,
+                     bufferSize,
+                     physicalDevice,
                      VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                      stagingBuffer,
@@ -879,7 +820,9 @@ private:
         memcpy(data, indices.data(), (size_t) bufferSize);
         vkUnmapMemory(device, stagingBufferMemory);
 
-        createBuffer(bufferSize,
+        createBuffer(device,
+                     bufferSize,
+                     physicalDevice,
                      VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
                      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                      indexBuffer,
@@ -898,7 +841,9 @@ private:
         uniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
 
         for (size_t i=0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            createBuffer(bufferSize,
+            createBuffer(device,
+                         bufferSize,
+                         physicalDevice,
                          VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                          uniformBuffers[i],
@@ -1033,31 +978,7 @@ private:
         return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
     }
 
-    void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
-        VkBufferCreateInfo bufferInfo{};
-        bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-        bufferInfo.size = size;
-        bufferInfo.usage = usage;
-        bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        if (vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create vertex buffer");
-        }
-
-        VkMemoryRequirements memRequirements;
-        vkGetBufferMemoryRequirements(device, buffer, &memRequirements);
-
-        VkMemoryAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-        allocInfo.allocationSize = memRequirements.size;
-        allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
-
-        if (vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
-            std::runtime_error("failed to allocate vertex buffer memory");
-        }
-
-        vkBindBufferMemory(device, buffer, bufferMemory, 0);
-    }
 
     void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
         VkCommandBufferAllocateInfo allocInfo{};
@@ -1197,19 +1118,6 @@ private:
         endSingleTimeCommand(commandBuffer);
     }
 
-    uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
-        VkPhysicalDeviceMemoryProperties memProperties;
-        vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
-
-        for (uint32_t i=0; i < memProperties.memoryTypeCount; i++) {
-            if (typeFilter & (1 << i) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
-                return i;
-            }
-        }
-
-        throw std::runtime_error("failed to find suitable memory type");
-    }
-
     void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -1286,7 +1194,7 @@ private:
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
-        allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+        allocInfo.memoryTypeIndex = findMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
 
         if (vkAllocateMemory(device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
             throw std::runtime_error("Failed to allocate image memory");

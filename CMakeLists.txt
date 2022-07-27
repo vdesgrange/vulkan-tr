@@ -9,11 +9,12 @@ add_executable(vulkan
         src/utility_shader.cpp
         include/stb_image.h
         include/utility_shader.h
+        include/buffers.h
         # include/tiny_obj_loader.h
         include/vertex.h
         include/model_loader.h
         src/model_loader.cpp
-        )
+        src/buffers.cpp)
 
 include_directories(/usr/local/include/ ./include/)
 
