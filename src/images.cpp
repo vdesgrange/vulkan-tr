@@ -1,5 +1,8 @@
-#include "../include/images.h"
+#ifndef STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+#endif
 
+#include "../include/images.h"
 
 void createImage(VkDevice& device, VkPhysicalDevice& physicalDevice, uint32_t width, uint32_t height, VkFormat format,
                  VkImageTiling tiling, VkImageUsageFlags usage,
@@ -38,6 +41,39 @@ void createImage(VkDevice& device, VkPhysicalDevice& physicalDevice, uint32_t wi
 
     vkBindImageMemory(device, image, imageMemory, 0);
 
+}
+
+VkImageView createImageView(VkDevice& device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) {
+    VkImageViewCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    createInfo.image = image;
+    createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    createInfo.format = format;
+    createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+    createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+    createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+    createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+    createInfo.subresourceRange.aspectMask = aspectFlags; //VK_IMAGE_ASPECT_COLOR_BIT;
+    createInfo.subresourceRange.baseMipLevel = 0;
+    createInfo.subresourceRange.levelCount = 1;
+    createInfo.subresourceRange.baseArrayLayer = 0;
+    createInfo.subresourceRange.layerCount = 1;
+
+    VkImageView imageView;
+    if (vkCreateImageView(device, &createInfo, nullptr, &imageView) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create image view");
+    }
+
+    return imageView;
+}
+
+void createImageViews(VkDevice& device, VkFormat& swapChainImageFormat,
+                      std::vector<VkImage>& swapChainImages, std::vector<VkImageView>& swapChainImageViews) {
+    swapChainImageViews.resize(swapChainImages.size());
+
+    for (size_t i = 0; i < swapChainImages.size(); i++) {
+        swapChainImageViews[i] = createImageView(device, swapChainImages[i], swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+    }
 }
 
 void transitionImageLayout(VkDevice& device, VkCommandPool& commandPool, VkQueue& graphicsQueue,
@@ -102,6 +138,29 @@ void transitionImageLayout(VkDevice& device, VkCommandPool& commandPool, VkQueue
             0, nullptr,
             1, &barrier
     );
+
+    endSingleTimeCommand(commandBuffer, commandPool, device, graphicsQueue);
+}
+
+void copyBufferToImage(VkDevice& device, VkCommandPool& commandPool, VkQueue& graphicsQueue, VkBuffer buffer,
+                       VkImage image, uint32_t width, uint32_t height) {
+    VkCommandBuffer commandBuffer = beginSingleTimeCommand(device, commandPool);
+
+    VkBufferImageCopy region{};
+    region.bufferOffset = 0;
+    region.bufferImageHeight = 0;
+    region.bufferRowLength = 0;
+    region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    region.imageSubresource.mipLevel = 0;
+    region.imageSubresource.baseArrayLayer = 0;
+    region.imageSubresource.layerCount = 1;
+
+    region.imageOffset = {0, 0, 0};
+    region.imageExtent = { width, height, 1};
+
+    vkCmdCopyBufferToImage(commandBuffer,buffer,
+                           image,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                           1,&region);
 
     endSingleTimeCommand(commandBuffer, commandPool, device, graphicsQueue);
 }

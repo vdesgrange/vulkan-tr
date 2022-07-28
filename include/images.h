@@ -7,8 +7,10 @@
 
 #include <GLFW/glfw3.h>
 #include <stdexcept>
+#include <vector>
 
 #include "../include/buffers.h"
+#include "../include/stb_image.h"
 
 void createImage(VkDevice& device,
                  VkPhysicalDevice& physicalDevice,
@@ -21,6 +23,16 @@ void createImage(VkDevice& device,
                  VkImage& image,
                  VkDeviceMemory& imageMemory);
 
+VkImageView createImageView(VkDevice& device,
+                            VkImage image,
+                            VkFormat format,
+                            VkImageAspectFlags aspectFlags);
+
+void createImageViews(VkDevice& device,
+                      VkFormat& swapChainImageFormat,
+                      std::vector<VkImage>& swapChainImages,
+                      std::vector<VkImageView>& swapChainImageViews);
+
 void transitionImageLayout(VkDevice& device,
                            VkCommandPool& commandPool,
                            VkQueue& graphicsQueue,
@@ -28,6 +40,14 @@ void transitionImageLayout(VkDevice& device,
                            VkFormat format,
                            VkImageLayout oldLayout,
                            VkImageLayout newLayout);
+
+void copyBufferToImage(VkDevice& device,
+                       VkCommandPool& commandPool,
+                       VkQueue& graphicsQueue,
+                       VkBuffer buffer,
+                       VkImage image,
+                       uint32_t width,
+                       uint32_t height);
 
 bool hasStencilComponent(VkFormat format);
 
