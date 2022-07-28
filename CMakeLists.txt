@@ -8,12 +8,14 @@ add_executable(vulkan
         src/main.cpp
         src/utility_shader.cpp
         src/images.cpp
+        src/texture.cpp
         src/buffers.cpp
         src/model_loader.cpp
         include/stb_image.h
         include/utility_shader.h
         include/vertex.h
         include/images.h
+        include/texture.h
         include/buffers.h
         include/model_loader.h
         include/tiny_obj_loader.h
