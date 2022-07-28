@@ -19,7 +19,7 @@ add_executable(vulkan
         include/buffers.h
         include/model_loader.h
         include/tiny_obj_loader.h
-)
+        src/utils.cpp include/utils.h)
 
 include_directories(/usr/local/include/ ./include/)
 
