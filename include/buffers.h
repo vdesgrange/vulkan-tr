@@ -7,6 +7,17 @@
 
 #include <GLFW/glfw3.h>
 #include <stdexcept>
+#include <vector>
+
+#include "../include/vertex.h"
+
+const int MAX_FRAMES_IN_FLIGHT = 2;
+
+struct UniformBufferObject {
+    alignas(16) glm::mat4 model;
+    alignas(16) glm::mat4 view;
+    alignas(16) glm::mat4 proj;
+};
 
 uint32_t findMemoryType(VkPhysicalDevice& physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
@@ -28,5 +39,19 @@ void copyBuffer(VkDevice& device,
                 VkBuffer srcBuffer,
                 VkBuffer dstBuffer,
                 VkDeviceSize size);
+
+void createVertexBuffer(VkDevice& device, VkPhysicalDevice& physicalDevice, VkCommandPool& commandPool,
+                        VkQueue& graphicsQueue, std::vector<Vertex>& vertices, VkBuffer& vertexBuffer,
+                        VkDeviceMemory& vertexBufferMemory);
+
+void createIndexBuffer(VkDevice& device, VkPhysicalDevice& physicalDevice,
+                       VkCommandPool& commandPool, VkQueue& graphicsQueue,
+                       std::vector<uint32_t>& indices, VkBuffer& indexBuffer,
+                       VkDeviceMemory& indexBufferMemory);
+
+void createUniformBuffers(VkDevice& device,
+                          VkPhysicalDevice& physicalDevice,
+                          std::vector<VkBuffer>& uniformBuffers,
+                          std::vector<VkDeviceMemory>& uniformBuffersMemory);
 
 #endif //VULKAN_BUFFERS_H

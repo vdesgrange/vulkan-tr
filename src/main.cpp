@@ -26,24 +26,10 @@
 #include "../include/buffers.h"
 #include "../include/images.h"
 #include "../include/texture.h"
-#include "../include/model_loader.h"
-
 #include "../include/utility_shader.h"
-// #include "../include/stb_image.h"
-
-
-const int MAX_FRAMES_IN_FLIGHT = 2;
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
-
-
-struct UniformBufferObject {
-    alignas(16) glm::mat4 model;
-    alignas(16) glm::mat4 view;
-    alignas(16) glm::mat4 proj;
-};
-
 
 const std::vector<const char*> validationLayers = {
         "VK_LAYER_KHRONOS_validation"
@@ -55,7 +41,6 @@ const std::vector<const char*> deviceExtensions = {
 
 std::vector<Vertex> vertices;
 std::vector<uint32_t> indices;
-
 
 #ifdef NDEBUG
     const bool enableValidationLayers = false;
@@ -182,9 +167,9 @@ private:
         createTextureImageView(device, textureImage, textureImageView);
         createTextureSampler(device, physicalDevice, textureSampler);
         loadModel(vertices, indices);
-        createVertexBuffer();
-        createIndexBuffer();
-        createUniformBuffers();
+        createVertexBuffer(device, physicalDevice, commandPool, graphicsQueue, vertices, vertexBuffer, vertexBufferMemory);
+        createIndexBuffer(device, physicalDevice, commandPool, graphicsQueue, indices, indexBuffer, indexBufferMemory);
+        createUniformBuffers(device, physicalDevice, uniformBuffers, uniformBuffersMemory);
         createDescriptorPool();
         createDescriptorSets();
         createCommandBuffers();
@@ -670,87 +655,6 @@ private:
         depthImageView = createImageView(device, depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 
         transitionImageLayout(device, commandPool, graphicsQueue, depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
-    }
-
-    void createVertexBuffer() {
-        VkDeviceSize bufferSize =  sizeof(vertices[0]) * vertices.size();
-
-        VkBuffer stagingBuffer;
-        VkDeviceMemory stagingBufferMemory;
-        createBuffer(device,
-                     bufferSize,
-                     physicalDevice,
-                     VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                     stagingBuffer,
-                     stagingBufferMemory);
-
-        void* data;
-        vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-        memcpy(data, vertices.data(), (size_t) bufferSize);
-        vkUnmapMemory(device, stagingBufferMemory);
-
-        createBuffer(device,
-                    bufferSize,
-                     physicalDevice,
-                     VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                     vertexBuffer,
-                     vertexBufferMemory);
-
-        copyBuffer(device, commandPool, graphicsQueue, stagingBuffer, vertexBuffer, bufferSize);
-
-        vkDestroyBuffer(device, stagingBuffer, nullptr);
-        vkFreeMemory(device, stagingBufferMemory, nullptr);
-    }
-
-    void createIndexBuffer() {
-        VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
-
-        VkBuffer stagingBuffer;
-        VkDeviceMemory stagingBufferMemory;
-        createBuffer(device,
-                     bufferSize,
-                     physicalDevice,
-                     VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                     stagingBuffer,
-                     stagingBufferMemory);
-
-        void* data;
-        vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-        memcpy(data, indices.data(), (size_t) bufferSize);
-        vkUnmapMemory(device, stagingBufferMemory);
-
-        createBuffer(device,
-                     bufferSize,
-                     physicalDevice,
-                     VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-                     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                     indexBuffer,
-                     indexBufferMemory);
-
-        copyBuffer(device, commandPool, graphicsQueue, stagingBuffer, indexBuffer, bufferSize);
-
-        vkDestroyBuffer(device, stagingBuffer, nullptr);
-        vkFreeMemory(device, stagingBufferMemory, nullptr);
-    }
-
-    void createUniformBuffers() {
-        VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-
-        uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-        uniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
-
-        for (size_t i=0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            createBuffer(device,
-                         bufferSize,
-                         physicalDevice,
-                         VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                         uniformBuffers[i],
-                         uniformBuffersMemory[i]);
-        }
     }
 
     void createDescriptorPool() {
