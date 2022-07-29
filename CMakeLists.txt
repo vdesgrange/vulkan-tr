@@ -11,6 +11,9 @@ add_executable(vulkan
         src/texture.cpp
         src/buffers.cpp
         src/model_loader.cpp
+        src/utils.cpp
+        src/devices.cpp
+        src/swap_chain.cpp
         include/stb_image.h
         include/utility_shader.h
         include/vertex.h
@@ -18,8 +21,10 @@ add_executable(vulkan
         include/texture.h
         include/buffers.h
         include/model_loader.h
-        include/tiny_obj_loader.h
-        src/utils.cpp include/utils.h)
+        include/utils.h
+        include/devices.h
+        include/swap_chain.h
+        include/tiny_obj_loader.h)
 
 include_directories(/usr/local/include/ ./include/)
 
