@@ -3,7 +3,6 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #define GLM_ENABLE_EXPERIMENTAL
-// #define STB_IMAGE_IMPLEMENTATION
 
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -163,7 +162,7 @@ private:
         createGraphicsPipeline();
         createCommandPool();
         createDepthResources();
-        createFramebuffers();
+        createFramebuffers(device, swapChainImageViews, swapChainFramebuffers, depthImageView, renderPass, swapChainExtent);
         createTextureImage(device, commandPool, graphicsQueue, physicalDevice, textureImage, textureImageMemory);
         createTextureImageView(device, textureImage, textureImageView);
         createTextureSampler(device, physicalDevice, textureSampler);
@@ -173,7 +172,7 @@ private:
         createUniformBuffers(device, physicalDevice, uniformBuffers, uniformBuffersMemory);
         createDescriptorPool();
         createDescriptorSets();
-        createCommandBuffers();
+        createCommandBuffers(device, commandPool, commandBuffers);
         createSyncObjects();
     }
 
@@ -377,7 +376,7 @@ private:
         createRenderPass();
         createGraphicsPipeline();
         createDepthResources();
-        createFramebuffers();
+        createFramebuffers(device, swapChainImageViews, swapChainFramebuffers, depthImageView, renderPass, swapChainExtent);
     }
 
     void createRenderPass() {
@@ -604,30 +603,6 @@ private:
         vkDestroyShaderModule(device, vertShaderModule, nullptr);
     }
 
-    void createFramebuffers() {
-        swapChainFramebuffers.resize(swapChainImageViews.size());
-
-        for (size_t i = 0; i < swapChainImageViews.size(); i++) {
-            std::array<VkImageView, 2> attachments = {
-                    swapChainImageViews[i],
-                    depthImageView
-            };
-
-            VkFramebufferCreateInfo framebufferInfo{};
-            framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            framebufferInfo.renderPass = renderPass;
-            framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-            framebufferInfo.pAttachments = attachments.data();
-            framebufferInfo.width = swapChainExtent.width;
-            framebufferInfo.height = swapChainExtent.height;
-            framebufferInfo.layers = 1;
-
-            if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
-                throw std::runtime_error("failed to create framebuffer");
-            }
-        }
-    }
-
     void createCommandPool() {
         QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
 
@@ -721,20 +696,6 @@ private:
         }
     }
 
-    void createCommandBuffers() {
-        commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-
-        VkCommandBufferAllocateInfo allocateInfo{};
-        allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocateInfo.commandPool = commandPool;
-        allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocateInfo.commandBufferCount = (uint32_t) commandBuffers.size();
-
-        if (vkAllocateCommandBuffers(device, &allocateInfo, commandBuffers.data()) != VK_SUCCESS) {
-            throw std::runtime_error("failed to allocate command buffers");
-        }
-    }
-
     void createSyncObjects() {
         imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
         renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -757,7 +718,7 @@ private:
 
     }
 
-    // Utilitiessrc/main.cpp
+    // Utilities
 
     void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
         VkCommandBufferBeginInfo beginInfo{};

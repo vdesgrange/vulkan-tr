@@ -54,4 +54,10 @@ void createUniformBuffers(VkDevice& device,
                           std::vector<VkBuffer>& uniformBuffers,
                           std::vector<VkDeviceMemory>& uniformBuffersMemory);
 
+void createFramebuffers(VkDevice device, std::vector<VkImageView>& swapChainImageViews,
+                        std::vector<VkFramebuffer>& swapChainFramebuffers, VkImageView& depthImageView,
+                        VkRenderPass& renderPass, VkExtent2D& swapChainExtent);
+
+void createCommandBuffers(VkDevice& device, VkCommandPool& commandPool, std::vector<VkCommandBuffer>& commandBuffers);
+
 #endif //VULKAN_BUFFERS_H

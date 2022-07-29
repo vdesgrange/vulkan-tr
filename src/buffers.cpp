@@ -178,3 +178,43 @@ void createUniformBuffers(VkDevice& device, VkPhysicalDevice& physicalDevice,
                      uniformBuffersMemory[i]);
     }
 }
+
+void createFramebuffers(VkDevice device, std::vector<VkImageView>& swapChainImageViews,
+                        std::vector<VkFramebuffer>& swapChainFramebuffers, VkImageView& depthImageView,
+                        VkRenderPass& renderPass, VkExtent2D& swapChainExtent) {
+    swapChainFramebuffers.resize(swapChainImageViews.size());
+
+    for (size_t i = 0; i < swapChainImageViews.size(); i++) {
+        std::array<VkImageView, 2> attachments = {
+                swapChainImageViews[i],
+                depthImageView
+        };
+
+        VkFramebufferCreateInfo framebufferInfo{};
+        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        framebufferInfo.renderPass = renderPass;
+        framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+        framebufferInfo.pAttachments = attachments.data();
+        framebufferInfo.width = swapChainExtent.width;
+        framebufferInfo.height = swapChainExtent.height;
+        framebufferInfo.layers = 1;
+
+        if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create framebuffer");
+        }
+    }
+}
+
+void createCommandBuffers(VkDevice& device, VkCommandPool& commandPool, std::vector<VkCommandBuffer>& commandBuffers) {
+    commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+
+    VkCommandBufferAllocateInfo allocateInfo{};
+    allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocateInfo.commandPool = commandPool;
+    allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocateInfo.commandBufferCount = (uint32_t) commandBuffers.size();
+
+    if (vkAllocateCommandBuffers(device, &allocateInfo, commandBuffers.data()) != VK_SUCCESS) {
+        throw std::runtime_error("failed to allocate command buffers");
+    }
+}
