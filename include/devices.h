@@ -19,6 +19,15 @@ void pickPhysicalDevice(VkInstance& instance,
                         VkSurfaceKHR& surface,
                         const std::vector<const char*>& deviceExtensions);
 
+void createLogicalDevice(VkDevice& device,
+                         VkPhysicalDevice& physicalDevice,
+                         VkSurfaceKHR& surface,
+                         const std::vector<const char*>& deviceExtensions,
+                         VkQueue& graphicsQueue,
+                         VkQueue& presentQueue,
+                         const std::vector<const char*> validationLayers,
+                         const bool enableValidationLayers);
+
 bool isDeviceSuitable(VkPhysicalDevice device, const std::vector<const char*>& deviceExtensions, VkSurfaceKHR& surface);
 
 bool checkDeviceExtensionSupport(VkPhysicalDevice device, const std::vector<const char*>& deviceExtensions);
