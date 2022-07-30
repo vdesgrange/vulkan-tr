@@ -15,6 +15,7 @@ add_executable(vulkan
         src/devices.cpp
         src/swap_chain.cpp
         src/validation_layers.cpp
+        src/graphic_pipeline.cpp
         src/depth.cpp
         src/rendering.cpp
         src/commands.cpp
@@ -30,6 +31,7 @@ add_executable(vulkan
         include/devices.h
         include/swap_chain.h
         include/validation_layers.h
+        include/graphic_pipeline.h
         include/depth.h
         include/rendering.h
         include/commands.h
