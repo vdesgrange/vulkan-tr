@@ -24,7 +24,7 @@ void createImage(VkDevice& device,
                  VkDeviceMemory& imageMemory);
 
 VkImageView createImageView(VkDevice& device,
-                            VkImage image,
+                            VkImage& image,
                             VkFormat format,
                             VkImageAspectFlags aspectFlags);
 
