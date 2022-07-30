@@ -6,24 +6,13 @@
 #endif
 
 #include <GLFW/glfw3.h>
-#include <array>
+#include <vector>
 
-#include "vertex.h"
-#include "utils.h"
-#include "utility_shader.h"
+#include "buffers.h"
 
-void createRenderPass(VkDevice& device,
-                      VkPhysicalDevice& physicalDevice,
-                      VkRenderPass& renderPass,
-                      VkFormat& swapChainImageFormat);
-
-void createDescriptorSetLayout(VkDevice& device, VkDescriptorSetLayout& descriptorSetLayout);
-
-void createGraphicsPipeline(VkDevice& device,
-                            VkRenderPass& renderPass,
-                            VkDescriptorSetLayout& descriptorSetLayout,
-                            VkPipelineLayout& pipelineLayout,
-                            VkPipeline& graphicsPipeline,
-                            VkExtent2D& swapChainExtent);
+void createSyncObjects(VkDevice& device,
+                       std::vector<VkSemaphore>& imageAvailableSemaphores,
+                       std::vector<VkSemaphore>& renderFinishedSemaphores,
+                       std::vector<VkFence>& inFlightFences);
 
 #endif //VULKAN_RENDERING_H
