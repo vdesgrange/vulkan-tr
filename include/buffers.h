@@ -5,6 +5,11 @@
 #define GLFW_INCLUDE_VULKAN
 #endif
 
+#ifndef GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
+#endif
+
+#include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
 #include <stdexcept>
 #include <vector>

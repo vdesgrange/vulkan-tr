@@ -1,9 +1,14 @@
 #ifndef VULKAN_VERTEX_H
 #define VULKAN_VERTEX_H
 
+#ifndef GLFW_INCLUDE_VULKAN
 #define GLFW_INCLUDE_VULKAN
+#endif
 
-// #include <vulkan/vulkan.h> // Not necessary because glfw include vulkan
+#ifndef GLM_ENABLE_EXPERIMENTAL
+#define GLM_ENABLE_EXPERIMENTAL
+#endif
+
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
