@@ -15,6 +15,10 @@ add_executable(vulkan
         src/devices.cpp
         src/swap_chain.cpp
         src/validation_layers.cpp
+        src/depth.cpp
+        src/rendering.cpp
+        src/commands.cpp
+        src/descriptors.cpp
         include/stb_image.h
         include/utility_shader.h
         include/vertex.h
@@ -26,7 +30,11 @@ add_executable(vulkan
         include/devices.h
         include/swap_chain.h
         include/validation_layers.h
-        include/tiny_obj_loader.h src/depth.cpp include/depth.h)
+        include/depth.h
+        include/rendering.h
+        include/commands.h
+        include/descriptors.h
+        include/tiny_obj_loader.h)
 
 include_directories(/usr/local/include/ ./include/)
 
