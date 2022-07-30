@@ -12,6 +12,7 @@ const bool enableValidationLayers = true;
 #endif
 
 #include <GLFW/glfw3.h>
+#include <vector>
 #include <iostream>
 #include <stdexcept>
 
@@ -36,5 +37,6 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
         void *pUserData);
 
+bool checkValidationLayerSupport(const std::vector<const char*>& validationLayers);
 
 #endif //VULKAN_VALIDATION_LAYERS_H

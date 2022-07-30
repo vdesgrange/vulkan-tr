@@ -26,7 +26,7 @@ add_executable(vulkan
         include/devices.h
         include/swap_chain.h
         include/validation_layers.h
-        include/tiny_obj_loader.h)
+        include/tiny_obj_loader.h src/depth.cpp include/depth.h)
 
 include_directories(/usr/local/include/ ./include/)
 

@@ -28,6 +28,7 @@
 #include "../include/texture.h"
 #include "../include/utility_shader.h"
 #include "../include/utils.h"
+#include "../include/depth.h"
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -119,11 +120,6 @@ private:
         glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
     }
 
-    static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
-        auto app = reinterpret_cast<TriangleApplication*>(glfwGetWindowUserPointer(window));
-        app->framebufferResized = true;
-    }
-
     void initVulkan() {
         createInstance();
         setupDebugMessenger(instance, debugMessenger);
@@ -136,7 +132,7 @@ private:
         createDescriptorSetLayout();
         createGraphicsPipeline();
         createCommandPool();
-        createDepthResources();
+        createDepthResources(device, physicalDevice, commandPool, graphicsQueue, swapChainExtent, depthImage, depthImageView, depthImageMemory);
         createFramebuffers(device, swapChainImageViews, swapChainFramebuffers, depthImageView, renderPass, swapChainExtent);
         createTextureImage(device, commandPool, graphicsQueue, physicalDevice, textureImage, textureImageMemory);
         createTextureImageView(device, textureImage, textureImageView);
@@ -151,8 +147,17 @@ private:
         createSyncObjects();
     }
 
+    void mainLoop() {
+        while(!glfwWindowShouldClose(window)) {
+            glfwPollEvents();
+            drawFrame();
+        }
+
+        vkDeviceWaitIdle(device);
+    }
+
     void createInstance() {
-        if (enableValidationLayers && !checkValidationLayerSupport()) {
+        if (enableValidationLayers && !checkValidationLayerSupport(validationLayers)) {
             throw std::runtime_error("validation layers requested unavailable");
         }
 
@@ -199,6 +204,13 @@ private:
 
     }
 
+    // Utilities
+
+    static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
+        auto app = reinterpret_cast<TriangleApplication*>(glfwGetWindowUserPointer(window));
+        app->framebufferResized = true;
+    }
+
     void recreateSwapChain() {
         int width = 0, height = 0;
         glfwGetFramebufferSize(window, &width, &height);
@@ -215,7 +227,7 @@ private:
         createImageViews(device, swapChainImageFormat, swapChainImages, swapChainImageViews);
         createRenderPass();
         createGraphicsPipeline();
-        createDepthResources();
+        createDepthResources(device, physicalDevice, commandPool, graphicsQueue, swapChainExtent, depthImage, depthImageView, depthImageMemory);
         createFramebuffers(device, swapChainImageViews, swapChainFramebuffers, depthImageView, renderPass, swapChainExtent);
     }
 
@@ -456,23 +468,6 @@ private:
         }
     }
 
-    void createDepthResources() {
-        VkFormat depthFormat = findDepthFormat(physicalDevice);
-        createImage(device,
-                    physicalDevice,
-                    swapChainExtent.width,
-                    swapChainExtent.height,
-                    depthFormat,
-                    VK_IMAGE_TILING_OPTIMAL,
-                    VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                    depthImage,
-                    depthImageMemory);
-        depthImageView = createImageView(device, depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
-
-        transitionImageLayout(device, commandPool, graphicsQueue, depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
-    }
-
     void createDescriptorPool() {
         std::array<VkDescriptorPoolSize, 2> poolSizes{};
         poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -558,8 +553,6 @@ private:
 
     }
 
-    // Utilities
-
     void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -605,15 +598,6 @@ private:
         if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
             throw std::runtime_error("failed to record command buffer");
         }
-    }
-
-    void mainLoop() {
-        while(!glfwWindowShouldClose(window)) {
-            glfwPollEvents();
-            drawFrame();
-        }
-
-        vkDeviceWaitIdle(device);
     }
 
     void drawFrame() {
@@ -771,30 +755,6 @@ private:
     }
 
 
-    bool checkValidationLayerSupport() {
-        uint32_t layerCount;
-
-        vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-        std::vector<VkLayerProperties> availableLayers(layerCount);
-        vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
-
-        for (const char* layerName : validationLayers) {
-            bool layerFound = false;
-
-            for (const auto &layerProperties: availableLayers) {
-                if (strcmp(layerName, layerProperties.layerName) == 0) {
-                    layerFound = true;
-                    break;
-                }
-            }
-
-            if (!layerFound) {
-                return false;
-            }
-        }
-
-        return true;
-    }
 };
 
 int main() {
