@@ -1,4 +1,4 @@
-#include "../include/graphic_pipeline.h"
+#include "include/graphic_pipeline.h"
 
 
 void createRenderPass(VkDevice& device, VkPhysicalDevice& physicalDevice,

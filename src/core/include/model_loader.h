@@ -4,8 +4,8 @@
 #include <vector>
 #include <unordered_map>
 
-#include "../include/tiny_obj_loader.h"
-#include "../include/vertex.h"
+#include "../../external/tiny_obj_loader.h"
+#include "vertex.h"
 
 const std::string MODEL_PATH = "src/models/viking_room.obj";
 const std::string TEXTURE_PATH = "src/textures/viking_room.png";

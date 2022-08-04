@@ -9,8 +9,8 @@
 #include <stdexcept>
 #include <vector>
 
-#include "../include/buffers.h"
-#include "../include/stb_image.h"
+#include "../../external/stb_image.h"
+#include "buffers.h"
 
 void createImage(VkDevice& device,
                  VkPhysicalDevice& physicalDevice,

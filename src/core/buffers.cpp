@@ -1,4 +1,4 @@
-#include "../include/buffers.h"
+#include "include/buffers.h"
 
 uint32_t findMemoryType(VkPhysicalDevice& physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties) {
     VkPhysicalDeviceMemoryProperties memProperties;

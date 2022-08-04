@@ -1,4 +1,4 @@
-#include "../include/devices.h"
+#include "include/devices.h"
 
 void createSurface(VkInstance& instance, GLFWwindow* window, VkSurfaceKHR& surface) {
     if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS) {

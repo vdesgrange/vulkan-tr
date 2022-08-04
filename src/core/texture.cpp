@@ -1,4 +1,4 @@
-#include "../include/texture.h"
+#include "include/texture.h"
 
 void createTextureImage(VkDevice& device, VkCommandPool& commandPool, VkQueue& graphicsQueue,
                         VkPhysicalDevice& physicalDevice, VkImage& textureImage, VkDeviceMemory& textureImageMemory) {

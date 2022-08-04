@@ -1,4 +1,4 @@
-#include "../include/commands.h"
+#include "include/commands.h"
 
 void createCommandPool(VkDevice& device, VkPhysicalDevice& physicalDevice,
                        VkCommandPool& commandPool, VkSurfaceKHR& surface) {

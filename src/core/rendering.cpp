@@ -1,4 +1,4 @@
-#include "../include/rendering.h"
+#include "include/rendering.h"
 
 void createSyncObjects(VkDevice& device,
                        std::vector<VkSemaphore>& imageAvailableSemaphores,

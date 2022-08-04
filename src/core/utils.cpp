@@ -1,4 +1,4 @@
-#include "../include/utils.h"
+#include "include/utils.h"
 
 VkFormat findSupportedFormat(VkPhysicalDevice& physicalDevice, const std::vector<VkFormat>& candidates,
                              VkImageTiling tiling, VkFormatFeatureFlags features) {

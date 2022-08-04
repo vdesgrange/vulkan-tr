@@ -1,4 +1,4 @@
-#include "../include/validation_layers.h"
+#include "include/validation_layers.h"
 
 void setupDebugMessenger(VkInstance& instance, VkDebugUtilsMessengerEXT& debugMessenger) {
     if (!enableValidationLayers) return;

@@ -2,7 +2,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #endif
 
-#include "../include/images.h"
+#include "include/images.h"
 
 void createImage(VkDevice& device, VkPhysicalDevice& physicalDevice, uint32_t width, uint32_t height, VkFormat format,
                  VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,

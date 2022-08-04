@@ -1,4 +1,4 @@
-#include "../include/descriptors.h"
+#include "include/descriptors.h"
 
 void createDescriptorPool(VkDevice& device, VkDescriptorPool& descriptorPool) {
     std::array<VkDescriptorPoolSize, 2> poolSizes{};

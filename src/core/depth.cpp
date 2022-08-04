@@ -1,4 +1,4 @@
-#include "../include/depth.h"
+#include "include/depth.h"
 
 void createDepthResources(VkDevice& device, VkPhysicalDevice& physicalDevice, VkCommandPool& commandPool,
                           VkQueue& graphicsQueue, VkExtent2D& swapChainExtent,

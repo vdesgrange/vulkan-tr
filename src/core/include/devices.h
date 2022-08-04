@@ -10,7 +10,7 @@
 #include <set>
 #include <string>
 
-#include "../include/swap_chain.h"
+#include "swap_chain.h"
 
 void createSurface(VkInstance& instance, GLFWwindow* window, VkSurfaceKHR& surface);
 

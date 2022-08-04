@@ -1,6 +1,6 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 
-#include <../include/model_loader.h>
+#include "include/model_loader.h"
 
 void loadModel(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices) {
     tinyobj::attrib_t attrib;

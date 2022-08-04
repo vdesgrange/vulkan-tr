@@ -4,41 +4,46 @@ project(vulkan)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_executable(vulkan
-        src/main.cpp
-        src/utility_shader.cpp
-        src/images.cpp
-        src/texture.cpp
-        src/buffers.cpp
-        src/model_loader.cpp
-        src/utils.cpp
-        src/devices.cpp
-        src/swap_chain.cpp
-        src/validation_layers.cpp
-        src/graphic_pipeline.cpp
-        src/depth.cpp
-        src/rendering.cpp
-        src/commands.cpp
-        src/descriptors.cpp
-        include/stb_image.h
-        include/utility_shader.h
-        include/vertex.h
-        include/images.h
-        include/texture.h
-        include/buffers.h
-        include/model_loader.h
-        include/utils.h
-        include/devices.h
-        include/swap_chain.h
-        include/validation_layers.h
-        include/graphic_pipeline.h
-        include/depth.h
-        include/rendering.h
-        include/commands.h
-        include/descriptors.h
-        include/tiny_obj_loader.h)
+file(GLOB_RECURSE EXTERNAL "src/external/*.h")
+file(GLOB_RECURSE CORE "src/core/*.cpp" "src/core/include/*.h")
 
-include_directories(/usr/local/include/ ./include/)
+add_executable(vulkan src/main.cpp ${EXTERNAL} ${CORE})
+
+#add_executable(vulkan
+#        src/main.cpp
+#        src/core/utility_shader.cpp
+#        src/core/images.cpp
+#        src/core/texture.cpp
+#        src/core/buffers.cpp
+#        src/core/model_loader.cpp
+#        src/core/utils.cpp
+#        src/core/devices.cpp
+#        src/core/swap_chain.cpp
+#        src/core/validation_layers.cpp
+#        src/core/graphic_pipeline.cpp
+#        src/core/depth.cpp
+#        src/core/rendering.cpp
+#        src/core/commands.cpp
+#        src/core/descriptors.cpp
+#        src/external/stb_image.h
+#        src/core/include/utility_shader.h
+#        src/core/include/vertex.h
+#        src/core/include/images.h
+#        src/core/include/texture.h
+#        src/core/include/buffers.h
+#        src/core/include/model_loader.h
+#        src/core/include/utils.h
+#        src/core/include/devices.h
+#        src/core/include/swap_chain.h
+#        src/core/include/validation_layers.h
+#        src/core/include/graphic_pipeline.h
+#        src/core/include/depth.h
+#        src/core/include/rendering.h
+#        src/core/include/commands.h
+#        src/core/include/descriptors.h
+#        src/external/tiny_obj_loader.h)
+
+include_directories(/usr/local/include/ src/core/include/)
 
 find_library(LIBVULKAN13 libvulkan.1.3.204.dylib ~/VulkanSDK/1.3.204.1/macOS/lib/)
 find_library(LIBVULKAN1 libvulkan.1.dylib ~/VulkanSDK/1.3.204.1/macOS/lib/)

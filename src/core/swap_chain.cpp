@@ -1,4 +1,4 @@
-#include "../include/swap_chain.h"
+#include "include/swap_chain.h"
 
 
 void createSwapChain(GLFWwindow* window, VkDevice& device, VkPhysicalDevice& physicalDevice, VkSurfaceKHR& surface,
