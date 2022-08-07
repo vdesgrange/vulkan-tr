@@ -89,8 +89,11 @@ void createDescriptorSetLayout(VkDevice& device, VkDescriptorSetLayout& descript
 void createGraphicsPipeline(VkDevice& device, VkRenderPass& renderPass, VkDescriptorSetLayout& descriptorSetLayout,
                             VkPipelineLayout& pipelineLayout, VkPipeline& graphicsPipeline,
                             VkExtent2D& swapChainExtent) {
+    // Load shader files
     auto vertShaderCode = readFile("./src/shaders/vert.spv");
     auto fragShaderCode = readFile("./src/shaders/frag.spv");
+
+    // Create shader modules
     VkShaderModule vertShaderModule = createShaderModule(&device, vertShaderCode);
     VkShaderModule fragShaderModule = createShaderModule(&device, fragShaderCode);
 
@@ -199,7 +202,7 @@ void createGraphicsPipeline(VkDevice& device, VkRenderPass& renderPass, VkDescri
 
     VkGraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    pipelineInfo.stageCount = 2;
+    pipelineInfo.stageCount = 2; // sizeof(shaderStages) / sizeof(*shaderStages)
     pipelineInfo.pStages = shaderStages;
     pipelineInfo.pVertexInputState = &vertexInputInfo;
     pipelineInfo.pInputAssemblyState = &inputAssembly;

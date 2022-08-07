@@ -1,12 +1,27 @@
 #include "include/devices.h"
 
 void createSurface(VkInstance& instance, GLFWwindow* window, VkSurfaceKHR& surface) {
+    /**
+     * Creates a Vulkan surface for the specified window
+     *
+     * @param instance reference to VkInstance
+     * @param window opaque window object
+     * @param surface  opaque handle to a surface object (native window object abstracted)
+     */
     if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS) {
         throw std::runtime_error("failed to create window surface!");
     }
 }
 
 void pickPhysicalDevice(VkInstance& instance, VkPhysicalDevice& physicalDevice, VkSurfaceKHR& surface, const std::vector<const char*>& deviceExtensions) {
+    /**
+     * pick a suitable physical device with Vulkan support
+     *
+     * @param instance reference to VkInstance
+     * @param physicalDevice physicalDevice which will be pick by this function
+     * @param surface opaque handle to a surface object
+     * @param deviceExtensions required extensions to be handled by the physical device. ex. VK_LAYER_KHRONOS_validation
+     */
     uint32_t deviceCount = 0;
 
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
