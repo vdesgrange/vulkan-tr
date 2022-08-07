@@ -86,9 +86,7 @@ void createDescriptorSetLayout(VkDevice& device, VkDescriptorSetLayout& descript
     }
 }
 
-void createGraphicsPipeline(VkDevice& device, VkRenderPass& renderPass, VkDescriptorSetLayout& descriptorSetLayout,
-                            VkPipelineLayout& pipelineLayout, VkPipeline& graphicsPipeline,
-                            VkExtent2D& swapChainExtent) {
+std::vector<VkPipelineShaderStageCreateInfo> createShaders(VkDevice& device) {
     // Load shader files
     auto vertShaderCode = readFile("./src/shaders/vert.spv");
     auto fragShaderCode = readFile("./src/shaders/frag.spv");
@@ -109,7 +107,37 @@ void createGraphicsPipeline(VkDevice& device, VkRenderPass& renderPass, VkDescri
     fragShaderStageInfo.module = fragShaderModule;
     fragShaderStageInfo.pName = "main";
 
-    VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
+    std::vector<VkPipelineShaderStageCreateInfo> shaderStages = {vertShaderStageInfo, fragShaderStageInfo};
+
+    return shaderStages;
+}
+
+void createGraphicsPipeline(VkDevice& device, VkRenderPass& renderPass, VkDescriptorSetLayout& descriptorSetLayout,
+                            VkPipelineLayout& pipelineLayout, VkPipeline& graphicsPipeline,
+                            VkExtent2D& swapChainExtent) {
+//    // Load shader files
+//    auto vertShaderCode = readFile("./src/shaders/vert.spv");
+//    auto fragShaderCode = readFile("./src/shaders/frag.spv");
+//
+//    // Create shader modules
+//    VkShaderModule vertShaderModule = createShaderModule(&device, vertShaderCode);
+//    VkShaderModule fragShaderModule = createShaderModule(&device, fragShaderCode);
+//
+//    VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
+//    vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+//    vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+//    vertShaderStageInfo.module = vertShaderModule;
+//    vertShaderStageInfo.pName = "main";
+//
+//    VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
+//    fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+//    fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+//    fragShaderStageInfo.module = fragShaderModule;
+//    fragShaderStageInfo.pName = "main";
+//
+//    VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
+
+    std::vector<VkPipelineShaderStageCreateInfo> shaderStages = createShaders(device);
 
     auto bindingDescription = Vertex::getBindingDescription();
     auto attributeDescriptions = Vertex::getAttributeDescriptions();
@@ -202,8 +230,8 @@ void createGraphicsPipeline(VkDevice& device, VkRenderPass& renderPass, VkDescri
 
     VkGraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    pipelineInfo.stageCount = 2; // sizeof(shaderStages) / sizeof(*shaderStages)
-    pipelineInfo.pStages = shaderStages;
+    pipelineInfo.stageCount = static_cast<uint32_t>(shaderStages.size()); // sizeof(shaderStages) / sizeof(*shaderStages)
+    pipelineInfo.pStages = shaderStages.data();
     pipelineInfo.pVertexInputState = &vertexInputInfo;
     pipelineInfo.pInputAssemblyState = &inputAssembly;
     pipelineInfo.pViewportState = &viewportState;
@@ -221,6 +249,10 @@ void createGraphicsPipeline(VkDevice& device, VkRenderPass& renderPass, VkDescri
     }
 
     // === Destroy ===
-    vkDestroyShaderModule(device, fragShaderModule, nullptr);
-    vkDestroyShaderModule(device, vertShaderModule, nullptr);
+    for (auto shader : shaderStages) {
+        vkDestroyShaderModule(device, shader.module, nullptr);
+    }
+
+//    vkDestroyShaderModule(device, fragShaderModule, nullptr);
+//    vkDestroyShaderModule(device, vertShaderModule, nullptr);
 }
